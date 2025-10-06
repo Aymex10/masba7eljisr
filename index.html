@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Masba7 el jisr - مسبح الجسر</title>
+  <style>
+    :root{
+      --accent: #2563eb;
+      --bg: #f7f8fb;
+      --card: #ffffff;
+      --muted: #666;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+      background:var(--bg);
+      color:#111;
+      line-height:1.4;
+    }
+
+    /* Header / nav */
+    header{
+      background:white;
+      box-shadow:0 2px 6px rgba(16,24,40,0.06);
+      position:sticky;
+      top:0;
+      z-index:10;
+    }
+    .container{max-width:1000px;margin:0 auto;padding:16px;}
+    nav{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+    .brand{font-weight:700;color:var(--accent);font-size:1.1rem}
+    .menu{display:flex;gap:12px}
+    .menu button{
+      background:none;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600;
+    }
+    .menu button.active{background:linear-gradient(90deg, rgba(37,99,235,0.12), rgba(37,99,235,0.06));color:var(--accent)}
+
+    /* Hero */
+    .hero{
+      padding:36px 16px;
+      text-align:center;
+    }
+    .hero h1{margin:0 0 8px;font-size:2rem}
+    .hero p{margin:0;color:var(--muted)}
+
+    /* Sections */
+    section{max-width:1000px;margin:20px auto;padding:16px}
+    .card{background:var(--card);padding:16px;border-radius:12px;box-shadow:0 6px 18px rgba(16,24,40,0.04)}
+
+    /* Gallery */
+    .gallery-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+      gap:12px;margin-top:12px;
+    }
+    .thumb{
+      display:block;overflow:hidden;border-radius:10px;background:#eee;cursor:pointer;
+      height:120px;object-fit:cover;width:100%;
+    }
+
+    /* Lightbox */
+    .lightbox{
+      position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;
+      padding:20px;z-index:40;visibility:hidden;opacity:0;transition:opacity .18s;
+    }
+    .lightbox.show{visibility:visible;opacity:1}
+    .lightbox img{max-width:90%;max-height:85%;border-radius:10px;box-shadow:0 10px 40px rgba(0,0,0,0.5)}
+    .lightbox .close{
+      position:absolute;top:18px;right:20px;background:transparent;border:none;color:white;font-size:24px;cursor:pointer;
+    }
+
+    /* Footer */
+    footer{padding:24px;text-align:center;color:var(--muted);font-size:0.9rem}
+    @media (max-width:600px){
+      .hero h1{font-size:1.5rem}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <div class="brand">مسبح الجسر</div>
+        <div class="menu" id="menu">
+          <button data-target="home" class="active">Hem</button>
+          <button data-target="gallery">Galleri</button>
+          <button data-target="about">Om</button>
+          <button data-target="contact">Kontakt</button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section id="home" class="card">
+      <div class="hero">
+        <h1>Välkommen azizam!</h1>
+        <p>Detta är en hemsida dedikerad till familjen Najjar och den vackra مسبح الجسر i Damour, Lebanon.</p>
+        <img src="images/startbild.jpg" alt="Startbild" style="max-width:80%;border-radius:12px;margin-top:20px;">
+      </div>
+    </section>
+
+    <section id="gallery" class="card" style="display:none">
+      <h2>Galleri</h2>
+      <p style="color:var(--muted)">Klicka på en bild för att se den större.</p>
+      <div class="gallery-grid" id="galleryGrid"></div>
+      <p style="margin-top:12px;color:var(--muted)">Ahlen bel shabab!</p>
+    </section>
+
+    <section id="about" class="card" style="display:none">
+      <h2>Om</h2>
+      <p>مسبح الجسر även kallat Masba7 el jisr, är en chalet belägen i Damour, Libanon. Det är en trevlig badplats med flera pooler och en sköön sa7en fattoush för att göra era dagar på stranden ännu trevligare. </p>
+    </section>
+
+    <section id="contact" class="card" style="display:none">
+      <h2>Kontakt</h2>
+      <p>El Natour - 0096 75 82 28 95</p>
+      <p>M3alem Abu Tari2 - 0096 74 38 95 55</p>
+    </section>
+  </main>
+
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <button class="close" id="closeLB" title="Stäng">✕</button>
+    <img id="lightboxImg" src="" alt="Stor bild">
+  </div>
+
+  <footer>
+    &copy; <span id="year"></span> مسبح الجسر - Masba7 el Jisr
+  </footer>
+
+ 
+  <script>
+    
+    // ----- NAVIGATION -----
+    const menu = document.getElementById('menu');
+    const sections = document.querySelectorAll('main section');
+
+    menu.addEventListener('click', (e) => {
+      if (!e.target.dataset.target) return;
+      const target = e.target.dataset.target;
+      menu.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      sections.forEach(s => s.id === target ? s.style.display = '' : s.style.display = 'none');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // ----- GALLERY SETUP -----
+    const imageFiles = ["bild1.jpg", "bild2.jpg", "bild3.jpg", "bild4.jpg"];
+    const galleryGrid = document.getElementById('galleryGrid');
+    const imagesPathPrefix = "images/";
+
+    function buildGallery() {
+      galleryGrid.innerHTML = "";
+      imageFiles.forEach(fn => {
+        const img = document.createElement('img');
+        img.className = "thumb";
+        img.src = imagesPathPrefix + fn;
+        img.alt = fn;
+        img.onerror = () => {
+          img.style.background = "#ddd";
+          img.style.objectFit = "contain";
+          img.alt = "Saknas: " + fn;
+        };
+        img.addEventListener('click', () => openLightbox(img.src, img.alt));
+        galleryGrid.appendChild(img);
+      });
+    }
+    buildGallery();
+
+    // ----- LIGHTBOX -----
+    const lb = document.getElementById('lightbox');
+    const lbImg = document.getElementById('lightboxImg');
+    const closeLB = document.getElementById('closeLB');
+
+    function openLightbox(src, alt) {
+      lbImg.src = src;
+      lbImg.alt = alt || "Bild";
+      lb.classList.add('show');
+      lb.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeLightbox() {
+      lb.classList.remove('show');
+      lb.setAttribute('aria-hidden', 'true');
+      lbImg.src = "";
+    }
+
+    closeLB.addEventListener('click', closeLightbox);
+    lb.addEventListener('click', (e) => { if (e.target === lb) closeLightbox(); });
+    document.addEventListener('keydown', (e) => { if (e.key === "Escape") closeLightbox(); });
+
+    // ----- FOOTER YEAR -----
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
